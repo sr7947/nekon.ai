@@ -26,7 +26,7 @@ FOUNDRY_RESOURCE_NAME="${FOUNDRY_RESOURCE_NAME:-nekon-foundry-$SUFFIX}"
 PROJECT_NAME="${PROJECT_NAME:-nekon-ai-project}"
 MODEL_DEPLOYMENT_NAME="${MODEL_DEPLOYMENT_NAME:-gpt-4o}"
 MODEL_NAME="${MODEL_NAME:-gpt-4o}"
-MODEL_VERSION="${MODEL_VERSION:-2024-08-06}"
+MODEL_VERSION="${MODEL_VERSION:-2024-11-20}"
 LOG_ANALYTICS_NAME="${LOG_ANALYTICS_NAME:-nekon-logs-$SUFFIX}"
 APP_INSIGHTS_NAME="${APP_INSIGHTS_NAME:-nekon-insights-$SUFFIX}"
 
@@ -87,14 +87,17 @@ az cognitiveservices account create \
     --custom-domain "$FOUNDRY_RESOURCE_NAME" \
     --output table || true
 
+echo "⏳ Waiting for Azure AI Foundry Resource provisioning..."
+sleep 10
+
 # --- Step 5: Create Azure AI Foundry Project ----------------------------------
 echo ""
-echo "[5/6] Creating Azure AI Foundry Project '$PROJECT_NAME'..."
-az cognitiveservices account projects create \
-    --name "$FOUNDRY_RESOURCE_NAME" \
-    --project-name "$PROJECT_NAME" \
+echo "[5/6] Registering Azure AI Foundry Project '$PROJECT_NAME'..."
+az resource create \
     --resource-group "$RESOURCE_GROUP" \
-    --location "$LOCATION" \
+    --name "$FOUNDRY_RESOURCE_NAME/$PROJECT_NAME" \
+    --resource-type "Microsoft.CognitiveServices/accounts/projects" \
+    --properties "{}" \
     --output table || true
 
 # --- Step 6: Deploy GPT Model -------------------------------------------------
