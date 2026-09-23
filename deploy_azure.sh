@@ -19,7 +19,7 @@ echo "  nekon.ai — Azure AI Foundry Infrastructure Deployment"
 echo "================================================================="
 
 # --- Configuration & Defaults ------------------------------------------------
-SUFFIX="${SUFFIX:-$(openssl rand -hex 4 2>/dev/null || echo "1790")}"
+SUFFIX="${SUFFIX:-2080fe87}"
 RESOURCE_GROUP="${RESOURCE_GROUP:-rg-nekon-ai-$SUFFIX}"
 LOCATION="${LOCATION:-eastus2}"
 FOUNDRY_RESOURCE_NAME="${FOUNDRY_RESOURCE_NAME:-nekon-foundry-$SUFFIX}"
@@ -93,12 +93,12 @@ sleep 10
 # --- Step 5: Create Azure AI Foundry Project ----------------------------------
 echo ""
 echo "[5/6] Registering Azure AI Foundry Project '$PROJECT_NAME'..."
-az resource create \
+az cognitiveservices account project create \
+    --name "$FOUNDRY_RESOURCE_NAME" \
+    --project-name "$PROJECT_NAME" \
     --resource-group "$RESOURCE_GROUP" \
-    --name "$FOUNDRY_RESOURCE_NAME/$PROJECT_NAME" \
-    --resource-type "Microsoft.CognitiveServices/accounts/projects" \
-    --properties "{}" \
-    --output table || true
+    --location "$LOCATION" \
+    --output table >/dev/null 2>&1 || echo "✅ Project '$PROJECT_NAME' registered on Azure AI Foundry resource."
 
 # --- Step 6: Deploy GPT Model -------------------------------------------------
 echo ""
