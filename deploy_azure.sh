@@ -7,6 +7,13 @@ set -euo pipefail
 # Log Analytics Workspace, and Application Insights Instance
 # =============================================================================
 
+# Prevent Git Bash on Windows from converting /subscriptions/... into C:\Program Files\Git\...
+export MSYS_NO_PATHCONV=1
+
+# Auto-install CLI extensions without interactive prompts
+az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors >/dev/null 2>&1 || true
+az extension add --name application-insights --only-show-errors >/dev/null 2>&1 || true
+
 echo "================================================================="
 echo "  nekon.ai — Azure AI Foundry Infrastructure Deployment"
 echo "================================================================="
