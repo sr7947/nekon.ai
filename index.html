@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nekon.ai — 3D AI News, X-Handles & Live Leaderboard Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050811; color: #e2e8f0; overflow-x: hidden; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.6; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.2); }
+        .glass-card:hover { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+        .tab-btn.active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- 3D Three.js Particle Core Background -->
+    <div id="canvas-container"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Header Bar -->
+        <header class="flex flex-col sm:flex-row items-center justify-between py-4 border-b border-slate-800 gap-4">
+            <div class="flex items-center gap-4">
+                <img src="C:/Users/Kumar Shanu/.gemini/antigravity/brain/8409ee43-4c9d-406b-8c90-db90aa754b09/nekon_logo.jpg" alt="nekon.ai Logo" class="h-12 w-auto object-contain rounded-lg border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
+                <div>
+                    <h1 class="text-2xl font-bold font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500">
+                        nekon.ai
+                    </h1>
+                    <p class="text-xs text-slate-400">3D AI Intelligence Hub • Azure AI Foundry Powered</p>
+                </div>
+            </div>
+
+            <!-- Global Stats Bar -->
+            <div class="flex items-center gap-6 text-xs text-slate-300 glass-card px-4 py-2 rounded-full">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Sources: <strong>25+ Labs</strong></span>
+                </div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div>X Handles: <strong>30+ Leaders</strong></div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div>Approval: <span class="text-cyan-400 font-semibold">Telegram Bot</span></div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs (3 Tabs) -->
+        <nav class="flex justify-center border-b border-slate-800 mt-6">
+            <button onclick="switchTab('news')" id="tab-news" class="tab-btn active px-6 py-3 text-sm font-medium transition-all duration-200">
+                📰 News Updates (Input 1)
+            </button>
+            <button onclick="switchTab('handles')" id="tab-handles" class="tab-btn px-6 py-3 text-sm font-medium transition-all duration-200">
+                🐦 AI Handles (Input 2)
+            </button>
+            <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="tab-btn px-6 py-3 text-sm font-medium transition-all duration-200">
+                🏆 Leaderboard (Input 3)
+            </button>
+        </nav>
+
+        <!-- TAB 1: NEWS UPDATES -->
+        <section id="content-news" class="mt-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-orbitron font-semibold text-cyan-300">Live AI Leader News Releases</h2>
+                <span class="text-xs bg-cyan-950 text-cyan-400 px-3 py-1 rounded-full border border-cyan-800">Filtered & Approved via Telegram</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
+                <!-- Cards rendered dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 2: AI HANDLES -->
+        <section id="content-handles" class="mt-8 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-orbitron font-semibold text-blue-300">Curated X / Twitter AI Signal Feed</h2>
+                <span class="text-xs bg-blue-950 text-blue-400 px-3 py-1 rounded-full border border-blue-800">High-Signal Filter Enabled</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="handles-grid">
+                <!-- Handles rendered dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 3: LEADERBOARD -->
+        <section id="content-leaderboard" class="mt-8 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-orbitron font-semibold text-purple-300">Real-Time LLM & Coding Agent Rankings</h2>
+                <span class="text-xs bg-purple-950 text-purple-400 px-3 py-1 rounded-full border border-purple-800">Synced: Artificial Analysis & OpenRouter</span>
+            </div>
+            <div class="glass-card rounded-xl overflow-hidden p-4">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 font-orbitron text-xs">
+                            <th class="p-3">Rank</th>
+                            <th class="p-3">Model Name</th>
+                            <th class="p-3">Provider</th>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Benchmark Score</th>
+                            <th class="p-3">Source Platform</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-tbody" class="divide-y divide-slate-800/50">
+                        <!-- Leaderboard rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Script for Dynamic Tabs & Three.js Canvas -->
+    <script>
+        // Sample Data for Tab 1 (News Updates)
+        const newsData = [
+            { company: "OpenAI", title: "OpenAI Unveils GPT-5.4 with Native Reasoning & Computer Use", category: "Model Launch", date: "Just now", summary: "Advanced mathematical reasoning, live multimodal tool execution, and 200k token context window.", url: "https://openai.com/news" },
+            { company: "Anthropic", title: "Anthropic Releases Claude 4 Sonnet setting SOTA on SWE-bench", category: "AI Research", date: "30 mins ago", summary: "Claude 4 Sonnet sets new autonomous coding benchmarks with deep architectural reasoning.", url: "https://www.anthropic.com/news" },
+            { company: "Google AI", title: "Google DeepMind Launches Gemini 3 Flash Multimodal Stream", category: "Infrastructure", date: "1 hour ago", summary: "Gemini 3 Flash delivers ultra-low latency real-time video/audio streaming under 100ms.", url: "https://blog.google/innovation-and-ai" },
+            { company: "DeepSeek", title: "DeepSeek Open-Sources DeepSeek-V4 MoE Architecture", category: "Open Source", date: "2 hours ago", summary: "DeepSeek-V4 Mixture-of-Experts model open-sourced with 1M context window and low inference cost.", url: "https://www.deepseek.com/blog" },
+            { company: "Nvidia AI", title: "Nvidia Announces Blackwell Ultra B300 NVLink Superclusters", category: "Hardware", date: "3 hours ago", summary: "Next-gen Blackwell B300 accelerators scale AI model training throughput by 5x.", url: "https://blogs.nvidia.com/blog/category/generative-ai" },
+            { company: "Meta AI", title: "Meta AI Releases Llama 4 405B Multimodal Weights", category: "Open Source", date: "4 hours ago", summary: "Meta releases open weights for Llama 4 with native vision and code generation.", url: "https://ai.meta.com/blog" }
+        ];
+
+        // Sample Data for Tab 2 (AI Handles)
+        const handlesData = [
+            { handle: "@sama", name: "Sam Altman", time: "15m ago", tweet: "Superintelligence is closer than most people think. Our teams are focusing heavily on alignment and compute scaling.", company: "OpenAI" },
+            { handle: "@demishassabis", name: "Demis Hassabis", time: "45m ago", tweet: "Thrilled to share our latest research on AlphaFold 4 extending protein design to synthetic biology applications.", company: "Google DeepMind" },
+            { handle: "@karpathy", name: "Andrej Karpathy", time: "2h ago", tweet: "Agentic coding is shifting from completion to full repository synthesis. The bottleneck is now human review speed.", company: "Eureka Labs" },
+            { handle: "@drfeifei", name: "Fei-Fei Li", time: "3h ago", tweet: "World Labs is advancing spatial intelligence models capable of understanding physical 3D geometry.", company: "World Labs" }
+        ];
+
+        // Sample Data for Tab 3 (Leaderboard)
+        const leaderboardData = [
+            { rank: 1, name: "GPT-5.4", provider: "OpenAI", category: "Intelligence", score: "98.4 / 100", source: "Artificial Analysis" },
+            { rank: 2, name: "Claude 4 Opus", provider: "Anthropic", category: "Intelligence", score: "97.8 / 100", source: "Artificial Analysis" },
+            { rank: 3, name: "Gemini 3 Pro", provider: "Google", category: "Intelligence", score: "97.2 / 100", source: "Artificial Analysis" },
+            { rank: 1, name: "Claude 4 Sonnet (Agentic)", provider: "Anthropic", category: "Coding Agents", score: "89.2% SWE-bench", source: "Artificial Analysis" },
+            { rank: 2, name: "DeepSWE-Pro", provider: "Datacurve", category: "Coding Agents", score: "88.7% SWE-bench", source: "DeepSWE Datacurve" },
+            { rank: 1, name: "Qwen 2.5 Max", provider: "Alibaba", category: "Top Models", score: "94.1 Score", source: "OpenRouter Rankings" }
+        ];
+
+        // Render Functions
+        function renderNews() {
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = newsData.map(item => `
+                <div class="glass-card rounded-xl p-5 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">${item.company}</span>
+                            <span class="text-xs text-slate-500">${item.date}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-100 mb-2 leading-snug hover:text-cyan-400 transition-colors">${item.title}</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">${item.summary}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                        <span class="text-slate-500">${item.category}</span>
+                        <a href="${item.url}" target="_blank" class="text-cyan-400 hover:underline font-medium">Read Source →</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHandles() {
+            const grid = document.getElementById('handles-grid');
+            grid.innerHTML = handlesData.map(item => `
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-sm text-white">
+                                ${item.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-200">${item.name}</h4>
+                                <span class="text-xs text-cyan-400">${item.handle} • ${item.company}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-slate-500">${item.time}</span>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-normal bg-slate-900/50 p-3 rounded-lg border border-slate-800">${item.tweet}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderLeaderboard() {
+            const tbody = document.getElementById('leaderboard-tbody');
+            tbody.innerHTML = leaderboardData.map(item => `
+                <tr class="hover:bg-slate-800/30 transition-colors">
+                    <td class="p-3 font-bold text-cyan-400">#${item.rank}</td>
+                    <td class="p-3 font-semibold text-slate-200">${item.name}</td>
+                    <td class="p-3 text-slate-400">${item.provider}</td>
+                    <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${item.category}</span></td>
+                    <td class="p-3 font-bold text-emerald-400">${item.score}</td>
+                    <td class="p-3 text-xs text-slate-400">${item.source}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Tab Switcher
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            document.getElementById('content-news').classList.add('hidden');
+            document.getElementById('content-handles').classList.add('hidden');
+            document.getElementById('content-leaderboard').classList.add('hidden');
+
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+        }
+
+        // Init Data
+        renderNews();
+        renderHandles();
+        renderLeaderboard();
+
+        // Three.js 3D Floating Metallic Core Scene
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        // Core Icosahedron Geometry
+        const geometry = new THREE.IcosahedronGeometry(3, 2);
+        const material = new THREE.MeshWireframeMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 });
+        const coreMesh = new THREE.Mesh(geometry, material);
+        scene.add(coreMesh);
+
+        // Outer Particles
+        const particleGeo = new THREE.BufferGeometry();
+        const count = 300;
+        const posArray = new Float32Array(count * 3);
+        for(let i=0; i<count*3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 20;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({ size: 0.05, color: 0x818cf8, transparent: true, opacity: 0.8 });
+        const particleMesh = new THREE.Points(particleGeo, particleMat);
+        scene.add(particleMesh);
+
+        camera.position.z = 8;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            coreMesh.rotation.x += 0.002;
+            coreMesh.rotation.y += 0.003;
+            particleMesh.rotation.y -= 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
