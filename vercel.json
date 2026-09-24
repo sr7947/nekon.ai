@@ -1,15 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "nekon_logo.jpg",
-      "use": "@vercel/static"
-    }
-  ],
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "cleanUrls": true,
   "routes": [
     {
       "src": "/(.*)",
