@@ -18,8 +18,15 @@ from dotenv import load_dotenv
 
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import FunctionTool, PromptAgentDefinition
-from azure.identity import DefaultAzureCredential
-from openai.types.responses.response_input_param import FunctionCallOutput
+from azure.identity import AzureCliCredential, DefaultAzureCredential
+
+
+def _get_azure_credential():
+    try:
+        return AzureCliCredential(process_timeout=60)
+    except Exception:
+        return DefaultAzureCredential()
+
 
 
 def _find_repo_root() -> Path:
@@ -80,42 +87,37 @@ LEADERBOARD_SOURCES = [
 # =============================================================================
 
 def fetch_ai_news_updates() -> str:
-    """Simulates fetching real-time RSS/HTML feeds from major AI leader blogs."""
-    mock_articles = [
-        {
-            "title": "OpenAI Unveils GPT-5.4 with Native Reasoning & Computer Use",
-            "company": "OpenAI",
-            "category": "Model Launch",
-            "summary": "OpenAI announced GPT-5.4 featuring advanced mathematical reasoning, live multimodal tool use, and 200k token context window.",
-            "source_url": "https://openai.com/news/gpt-5-4-announcement",
-            "published_at": "2026-09-23T10:00:00Z",
-        },
-        {
-            "title": "Anthropic Introduces Claude 4 Sonnet with Breakthrough Coding Agent Benchmark Scores",
-            "company": "Anthropic",
-            "category": "AI Research",
-            "summary": "Anthropic released Claude 4 Sonnet, setting a new SOTA score on SWE-bench and human-assisted code refactoring.",
-            "source_url": "https://www.anthropic.com/news/claude-4-sonnet",
-            "published_at": "2026-09-23T11:30:00Z",
-        },
-        {
-            "title": "Google DeepMind Launches Gemini 3 Flash with Ultra-Low Latency Multimodal Live Stream",
-            "company": "Google AI",
-            "category": "Model Launch",
-            "summary": "Google DeepMind announced Gemini 3 Flash for real-time audio/video streaming with under 100ms response latency.",
-            "source_url": "https://blog.google/innovation-and-ai/gemini-3-flash",
-            "published_at": "2026-09-23T12:15:00Z",
-        },
-        {
-            "title": "DeepSeek Open-Sources DeepSeek-V4-MoE with 1M Context Window",
-            "company": "DeepSeek",
-            "category": "Open Source",
-            "summary": "DeepSeek has open-sourced DeepSeek-V4 Mixture-of-Experts model, outperforming proprietary models in reasoning cost efficiency.",
-            "source_url": "https://www.deepseek.com/blog/deepseek-v4-moe",
-            "published_at": "2026-09-23T09:45:00Z",
-        }
+    import urllib.request, xml.etree.ElementTree as ET, json, ssl
+    sources = [
+        {"company": "Hugging Face", "url": "https://huggingface.co/blog/feed.xml"},
+        {"company": "Google AI", "url": "https://blog.google/technology/ai/rss/"},
+        {"company": "MIT AI News", "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed/"},
+        {"company": "ArXiv AI", "url": "https://export.arxiv.org/rss/cs.AI"}
     ]
-    return json.dumps(mock_articles, indent=2)
+    live_articles = []
+    ctx = ssl._create_unverified_context()
+    for s in sources:
+        try:
+            req = urllib.request.Request(s["url"], headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, context=ctx, timeout=8) as res:
+                root = ET.fromstring(res.read())
+                items = root.findall(".//item") or root.findall(".//{http://www.w3.org/2005/Atom}entry")
+                for item in items[:2]:
+                    t_el = item.find("title") or item.find("{http://www.w3.org/2005/Atom}title")
+                    l_el = item.find("link") or item.find("{http://www.w3.org/2005/Atom}link")
+                    p_el = item.find("pubDate") or item.find("updated") or item.find("{http://www.w3.org/2005/Atom}updated")
+                    title = t_el.text.strip() if t_el is not None and t_el.text else "AI Breakthrough Update"
+                    link = l_el.text.strip() if l_el is not None and l_el.text else s["url"]
+                    if l_el is not None and "href" in l_el.attrib:
+                        link = l_el.attrib["href"]
+                    pub = p_el.text.strip() if p_el is not None and p_el.text else "Today"
+                    live_articles.append({"title": title, "company": s["company"], "category": "Live Breakthrough", "summary": f"Latest update from {s['company']}: {title}", "source_url": link, "published_at": pub})
+        except Exception as e:
+            print(f"[WARN] {s['company']}: {e}")
+    if not live_articles:
+        live_articles = [{"title": "DeepSeek Open-Sources DeepSeek-V3 MoE Architecture", "company": "DeepSeek", "category": "Open Source", "summary": "DeepSeek MoE architecture.", "source_url": "https://www.deepseek.com/blog", "published_at": "Today"}]
+    return json.dumps(live_articles, indent=2)
+
 
 
 def fetch_x_handles_feed() -> str:
@@ -278,9 +280,12 @@ class NewsFeedAgent:
     def create(self):
         if not PROJECT_CONNECTION_STRING:
             return None
+        conn = PROJECT_CONNECTION_STRING
+        if conn and not conn.startswith("https://") and not conn.startswith("http://"):
+            conn = f"https://{conn}"
         self.client = AIProjectClient(
-            endpoint=PROJECT_CONNECTION_STRING,
-            credential=DefaultAzureCredential(),
+            endpoint=conn,
+            credential=_get_azure_credential(),
         )
         self.openai = self.client.get_openai_client()
         self.agent = self.client.agents.create_version(
@@ -304,9 +309,12 @@ class TweetFeedAgent:
     def create(self):
         if not PROJECT_CONNECTION_STRING:
             return None
+        conn = PROJECT_CONNECTION_STRING
+        if conn and not conn.startswith("https://") and not conn.startswith("http://"):
+            conn = f"https://{conn}"
         self.client = AIProjectClient(
-            endpoint=PROJECT_CONNECTION_STRING,
-            credential=DefaultAzureCredential(),
+            endpoint=conn,
+            credential=_get_azure_credential(),
         )
         self.openai = self.client.get_openai_client()
         self.agent = self.client.agents.create_version(
@@ -330,9 +338,12 @@ class ApprovalAgent:
     def create(self):
         if not PROJECT_CONNECTION_STRING:
             return None
+        conn = PROJECT_CONNECTION_STRING
+        if conn and not conn.startswith("https://") and not conn.startswith("http://"):
+            conn = f"https://{conn}"
         self.client = AIProjectClient(
-            endpoint=PROJECT_CONNECTION_STRING,
-            credential=DefaultAzureCredential(),
+            endpoint=conn,
+            credential=_get_azure_credential(),
         )
         self.openai = self.client.get_openai_client()
         self.agent = self.client.agents.create_version(
@@ -356,9 +367,12 @@ class LeaderboardAgent:
     def create(self):
         if not PROJECT_CONNECTION_STRING:
             return None
+        conn = PROJECT_CONNECTION_STRING
+        if conn and not conn.startswith("https://") and not conn.startswith("http://"):
+            conn = f"https://{conn}"
         self.client = AIProjectClient(
-            endpoint=PROJECT_CONNECTION_STRING,
-            credential=DefaultAzureCredential(),
+            endpoint=conn,
+            credential=_get_azure_credential(),
         )
         self.openai = self.client.get_openai_client()
         self.agent = self.client.agents.create_version(

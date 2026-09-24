@@ -1,0 +1,102 @@
+{
+  "plant_id": "TireForge-Plant-01",
+  "location": "Akron, Ohio",
+  "timestamp": "2026-09-23T12:00:00Z",
+  "machines": [
+    {
+      "machine_id": "MX-001",
+      "name": "Mixer Alpha",
+      "type": "Rubber Compound Blender",
+      "status": "warning",
+      "last_maintenance": "2026-08-15",
+      "readings": {
+        "temperature": { "value": 94.5, "unit": "°C" },
+        "pressure": { "value": 4.8, "unit": "bar" },
+        "vibration": { "value": 7.2, "unit": "mm/s" },
+        "rpm": { "value": 1180, "unit": "RPM" }
+      },
+      "thresholds": {
+        "temperature": { "min": 60.0, "max": 90.0 },
+        "pressure": { "min": 2.0, "max": 5.0 },
+        "vibration": { "min": 0.5, "max": 5.0 },
+        "rpm": { "min": 800, "max": 1200 }
+      }
+    },
+    {
+      "machine_id": "EX-002",
+      "name": "Extruder Beta",
+      "type": "Tread Profile Extruder",
+      "status": "normal",
+      "last_maintenance": "2026-09-01",
+      "readings": {
+        "temperature": { "value": 115.0, "unit": "°C" },
+        "pressure": { "value": 12.1, "unit": "bar" },
+        "vibration": { "value": 2.1, "unit": "mm/s" },
+        "rpm": { "value": 450, "unit": "RPM" }
+      },
+      "thresholds": {
+        "temperature": { "min": 100.0, "max": 130.0 },
+        "pressure": { "min": 8.0, "max": 15.0 },
+        "vibration": { "min": 0.5, "max": 4.0 },
+        "rpm": { "min": 300, "max": 600 }
+      }
+    },
+    {
+      "machine_id": "CP-003",
+      "name": "Curing Press Gamma",
+      "type": "Vulcanization Press",
+      "status": "critical",
+      "last_maintenance": "2026-06-10",
+      "readings": {
+        "temperature": { "value": 182.4, "unit": "°C" },
+        "pressure": { "value": 28.9, "unit": "bar" },
+        "vibration": { "value": 12.8, "unit": "mm/s" },
+        "rpm": { "value": 0, "unit": "RPM" }
+      },
+      "thresholds": {
+        "temperature": { "min": 140.0, "max": 170.0 },
+        "pressure": { "min": 15.0, "max": 25.0 },
+        "vibration": { "min": 0.1, "max": 6.0 },
+        "rpm": { "min": 0, "max": 10 }
+      }
+    },
+    {
+      "machine_id": "CU-004",
+      "name": "Cooling Unit Delta",
+      "type": "Tire Heat Exchanger",
+      "status": "normal",
+      "last_maintenance": "2026-09-10",
+      "readings": {
+        "temperature": { "value": 24.1, "unit": "°C" },
+        "pressure": { "value": 2.2, "unit": "bar" },
+        "vibration": { "value": 1.1, "unit": "mm/s" },
+        "rpm": { "value": 900, "unit": "RPM" }
+      },
+      "thresholds": {
+        "temperature": { "min": 15.0, "max": 35.0 },
+        "pressure": { "min": 1.0, "max": 4.0 },
+        "vibration": { "min": 0.2, "max": 3.0 },
+        "rpm": { "min": 600, "max": 1200 }
+      }
+    },
+    {
+      "machine_id": "IS-005",
+      "name": "Inspection Station Epsilon",
+      "type": "Laser & Vibration QA Scanner",
+      "status": "warning",
+      "last_maintenance": "2026-07-22",
+      "readings": {
+        "temperature": { "value": 38.2, "unit": "°C" },
+        "pressure": { "value": 1.0, "unit": "bar" },
+        "vibration": { "value": 8.9, "unit": "mm/s" },
+        "rpm": { "value": 1500, "unit": "RPM" }
+      },
+      "thresholds": {
+        "temperature": { "min": 15.0, "max": 40.0 },
+        "pressure": { "min": 0.5, "max": 2.0 },
+        "vibration": { "min": 0.1, "max": 4.5 },
+        "rpm": { "min": 1000, "max": 1800 }
+      }
+    }
+  ]
+}

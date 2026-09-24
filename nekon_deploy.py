@@ -124,6 +124,13 @@ trigger:
 
 
 def main():
+    print("STEP 0: REGISTERING SPECIALIZED AGENTS IN AZURE AI FOUNDRY...")
+    from nekon_agents import NewsFeedAgent, TweetFeedAgent, ApprovalAgent, LeaderboardAgent
+    for agent_cls in [NewsFeedAgent, TweetFeedAgent, ApprovalAgent, LeaderboardAgent]:
+        a = agent_cls()
+        res = a.create()
+        if res:
+            print(f"  [OK] Registered agent: {getattr(res, 'name', agent_cls.__name__)}")
     execute_nekon_python_pipeline()
     register_nekon_foundry_workflow()
     print("\n[OK] nekon.ai multi-agent deployment workflow complete!")
